@@ -4,26 +4,22 @@ import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 import ru.job4j.job4j_auth.domain.Person;
-import ru.job4j.job4j_auth.repository.PersonRepository;
+import ru.job4j.job4j_auth.service.PersonService;
 
 import java.util.List;
-import java.util.stream.Collectors;
-import java.util.stream.StreamSupport;
 
 @RestController
 @RequestMapping("/person")
 public class PersonController {
-    private final PersonRepository persons;
+    private final PersonService persons;
 
-    public PersonController(final PersonRepository persons) {
+    public PersonController(final PersonService persons) {
         this.persons = persons;
     }
 
     @GetMapping("/")
     public List<Person> findAll() {
-        return StreamSupport.stream(
-                this.persons.findAll().spliterator(), false
-        ).collect(Collectors.toList());
+        return persons.findAll();
     }
 
     @GetMapping("/{id}")
@@ -38,22 +34,20 @@ public class PersonController {
     @PostMapping("/")
     public ResponseEntity<Person> create(@RequestBody Person person) {
         return new ResponseEntity<>(
-                this.persons.save(person),
+                this.persons.create(person),
                 HttpStatus.CREATED
         );
     }
 
     @PutMapping("/")
     public ResponseEntity<Void> update(@RequestBody Person person) {
-        this.persons.save(person);
+        this.persons.update(person);
         return ResponseEntity.ok().build();
     }
 
     @DeleteMapping("/{id}")
     public ResponseEntity<Void> delete(@PathVariable int id) {
-        Person person = new Person();
-        person.setId(id);
-        this.persons.delete(person);
+        this.persons.delete(id);
         return ResponseEntity.ok().build();
     }
 }
